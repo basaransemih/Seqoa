@@ -23,7 +23,7 @@ export default function SearchBox({ initialValue = '', onSearch, variant = 'larg
                 return;
             }
             try {
-                const res = await fetch(`http://localhost:3000/api/auto-complete?q=${encodeURIComponent(q)}`);
+                const res = await fetch(`https://seqoa-proxy.vercel.app/api/auto-complete?q=${encodeURIComponent(q)}`);
                 if (res.ok) {
                     const data = await res.json();
                     setSuggestions(Array.isArray(data) ? data : []);

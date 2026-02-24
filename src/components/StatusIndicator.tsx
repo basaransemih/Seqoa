@@ -5,61 +5,61 @@ import { Activity, CheckCircle, XCircle } from 'lucide-react';
 import { SystemStatus } from '@/types';
 
 export default function StatusIndicator() {
-    const [status, setStatus] = useState<SystemStatus | null>(null);
-    const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<SystemStatus | null>(null);
+  const [open, setOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchStatus = async () => {
-            try {
-                const res = await fetch('http://localhost:3000/api/status');
-                if (res.ok) {
-                    const data = await res.json();
-                    setStatus(data);
-                }
-            } catch (err) {
-                console.error("Status fetch error:", err);
-            }
-        };
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('https://seqoa-proxy.vercel.app/api/status');
+        if (res.ok) {
+          const data = await res.json();
+          setStatus(data);
+        }
+      } catch (err) {
+        console.error("Status fetch error:", err);
+      }
+    };
 
-        fetchStatus();
-        const interval = setInterval(fetchStatus, 30000); // Refresh every 30s
-        return () => clearInterval(interval);
-    }, []);
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
 
-    if (!status) return null;
+  if (!status) return null;
 
-    return (
-        <div className="status-indicator">
-            <button className="status-trigger" onClick={() => setOpen(!open)}>
-                <Activity size={14} className={status.status === 'online' ? 'pulse' : ''} />
-                <span>System {status.status}</span>
-            </button>
+  return (
+    <div className="status-indicator">
+      <button className="status-trigger" onClick={() => setOpen(!open)}>
+        <Activity size={14} className={status.status === 'online' ? 'pulse' : ''} />
+        <span>System {status.status}</span>
+      </button>
 
-            {open && (
-                <div className="status-dropdown fade-in">
-                    <div className="status-header">
-                        <h4>Engine Status</h4>
-                        <span className="uptime-label">Uptime</span>
-                    </div>
-                    <div className="engine-list">
-                        {status.engines.map((engine, i) => (
-                            <div key={i} className="engine-item">
-                                <div className="engine-info">
-                                    {engine.failure === 0 ? (
-                                        <CheckCircle size={14} className="icon-success" />
-                                    ) : (
-                                        <XCircle size={14} className="icon-error" />
-                                    )}
-                                    <span className="engine-name">{engine.name}</span>
-                                </div>
-                                <span className="engine-uptime">{engine.uptime}</span>
-                            </div>
-                        ))}
-                    </div>
+      {open && (
+        <div className="status-dropdown fade-in">
+          <div className="status-header">
+            <h4>Engine Status</h4>
+            <span className="uptime-label">Uptime</span>
+          </div>
+          <div className="engine-list">
+            {status.engines.map((engine, i) => (
+              <div key={i} className="engine-item">
+                <div className="engine-info">
+                  {engine.failure === 0 ? (
+                    <CheckCircle size={14} className="icon-success" />
+                  ) : (
+                    <XCircle size={14} className="icon-error" />
+                  )}
+                  <span className="engine-name">{engine.name}</span>
                 </div>
-            )}
+                <span className="engine-uptime">{engine.uptime}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-            <style jsx>{`
+      <style jsx>{`
         .status-indicator {
           position: fixed;
           bottom: 1.5rem;
@@ -161,6 +161,6 @@ export default function StatusIndicator() {
           color: var(--fg-muted);
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }

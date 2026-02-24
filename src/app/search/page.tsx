@@ -9,104 +9,104 @@ import { SearchResultItem, WikiData } from '@/types';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 function SearchResultsContent() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const query = searchParams.get('q') || '';
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const query = searchParams.get('q') || '';
 
-    const [results, setResults] = useState<SearchResultItem[]>([]);
-    const [wikiData, setWikiData] = useState<WikiData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<SearchResultItem[]>([]);
+  const [wikiData, setWikiData] = useState<WikiData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (query) {
-            performSearch(query);
-        }
-    }, [query]);
+  useEffect(() => {
+    if (query) {
+      performSearch(query);
+    }
+  }, [query]);
 
-    const performSearch = async (q: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            // Fetch results and wiki data in parallel
-            const [searchRes, wikiRes] = await Promise.all([
-                fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(q)}`),
-                fetch(`http://localhost:3000/api/wiki?q=${encodeURIComponent(q)}`)
-            ]);
+  const performSearch = async (q: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch results and wiki data in parallel
+      const [searchRes, wikiRes] = await Promise.all([
+        fetch(`https://seqoa-proxy.vercel.app/api/search?q=${encodeURIComponent(q)}`),
+        fetch(`https://seqoa-proxy.vercel.app/api/wiki?q=${encodeURIComponent(q)}`)
+      ]);
 
-            if (!searchRes.ok) throw new Error("Search failed");
+      if (!searchRes.ok) throw new Error("Search failed");
 
-            const searchData = await searchRes.json();
-            setResults(searchData || []);
+      const searchData = await searchRes.json();
+      setResults(searchData || []);
 
-            if (wikiRes.ok) {
-                const wikiInfo = await wikiRes.json();
-                setWikiData(wikiInfo && wikiInfo.title ? wikiInfo : null);
-            } else {
-                setWikiData(null);
-            }
-        } catch (err) {
-            console.error("Search error:", err);
-            setError("Failed to fetch results. Please check if the proxy is running.");
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (wikiRes.ok) {
+        const wikiInfo = await wikiRes.json();
+        setWikiData(wikiInfo && wikiInfo.title ? wikiInfo : null);
+      } else {
+        setWikiData(null);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      setError("Failed to fetch results. Please check if the proxy is running.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleNewSearch = (newQuery: string) => {
-        router.push(`/search?q=${encodeURIComponent(newQuery)}`);
-    };
+  const handleNewSearch = (newQuery: string) => {
+    router.push(`/search?q=${encodeURIComponent(newQuery)}`);
+  };
 
-    return (
-        <div className="search-page">
-            <header className="search-header">
-                <div className="container header-container">
-                    <div className="logo-small" onClick={() => router.push('/')}>
-                        <span>SEQOA</span>
-                    </div>
-                    <div className="search-box-wrapper">
-                        <SearchBox initialValue={query} onSearch={handleNewSearch} variant="small" />
-                    </div>
-                </div>
-            </header>
+  return (
+    <div className="search-page">
+      <header className="search-header">
+        <div className="container header-container">
+          <div className="logo-small" onClick={() => router.push('/')}>
+            <span>SEQOA</span>
+          </div>
+          <div className="search-box-wrapper">
+            <SearchBox initialValue={query} onSearch={handleNewSearch} variant="small" />
+          </div>
+        </div>
+      </header>
 
-            <main className="container results-container">
-                <div className="results-layout">
-                    <div className="results-list">
-                        {loading ? (
-                            <div className="status-container">
-                                <Loader2 className="animate-spin" size={32} />
-                                <p>Searching for "{query}"...</p>
-                            </div>
-                        ) : error ? (
-                            <div className="status-container error">
-                                <AlertCircle size={32} />
-                                <p>{error}</p>
-                                <button onClick={() => performSearch(query)} className="retry-btn">Retry</button>
-                            </div>
-                        ) : results.length > 0 ? (
-                            <div className="results-wrapper">
-                                <p className="results-count">About {results.length} results found for "{query}"</p>
-                                {results.map((res, i) => (
-                                    <SearchResult key={i} result={res} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="status-container">
-                                <p>No results found for "{query}"</p>
-                            </div>
-                        )}
-                    </div>
+      <main className="container results-container">
+        <div className="results-layout">
+          <div className="results-list">
+            {loading ? (
+              <div className="status-container">
+                <Loader2 className="animate-spin" size={32} />
+                <p>Searching for "{query}"...</p>
+              </div>
+            ) : error ? (
+              <div className="status-container error">
+                <AlertCircle size={32} />
+                <p>{error}</p>
+                <button onClick={() => performSearch(query)} className="retry-btn">Retry</button>
+              </div>
+            ) : results.length > 0 ? (
+              <div className="results-wrapper">
+                <p className="results-count">About {results.length} results found for "{query}"</p>
+                {results.map((res, i) => (
+                  <SearchResult key={i} result={res} />
+                ))}
+              </div>
+            ) : (
+              <div className="status-container">
+                <p>No results found for "{query}"</p>
+              </div>
+            )}
+          </div>
 
-                    <aside className="results-sidebar">
-                        <Suspense fallback={<div className="sidebar-placeholder" />}>
-                            <InfoCard data={wikiData} />
-                        </Suspense>
-                    </aside>
-                </div>
-            </main>
+          <aside className="results-sidebar">
+            <Suspense fallback={<div className="sidebar-placeholder" />}>
+              <InfoCard data={wikiData} />
+            </Suspense>
+          </aside>
+        </div>
+      </main>
 
-            <style jsx>{`
+      <style jsx>{`
         .search-page {
           min-height: 100vh;
           background: var(--bg);
@@ -227,14 +227,14 @@ function SearchResultsContent() {
           }
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }
 
 export default function SearchPage() {
-    return (
-        <Suspense fallback={<div className="loading-fallback">Loading Seqoa Search...</div>}>
-            <SearchResultsContent />
-        </Suspense>
-    );
+  return (
+    <Suspense fallback={<div className="loading-fallback">Loading Seqoa Search...</div>}>
+      <SearchResultsContent />
+    </Suspense>
+  );
 }
