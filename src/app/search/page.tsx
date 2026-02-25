@@ -31,14 +31,13 @@ function SearchResultsContent() {
       // Fetch results and wiki data in parallel
       const [searchRes, wikiRes] = await Promise.all([
         fetch(`https://seqoa-proxy.vercel.app/api/search?q=${encodeURIComponent(q)}`),
-        fetch(`https://seqoa-proxy.vercel.app/api/wiki?q=${encodeURIComponent(q)}`)
+        fetch(`https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`)
       ]);
 
       if (!searchRes.ok) throw new Error("Search failed");
 
       const searchData = await searchRes.json();
-      setResults(searchData || []);
-
+      setResults(searchData.results || []);
       if (wikiRes.ok) {
         const wikiInfo = await wikiRes.json();
         setWikiData(wikiInfo && wikiInfo.title ? wikiInfo : null);
@@ -62,7 +61,7 @@ function SearchResultsContent() {
       <header className="search-header">
         <div className="container header-container">
           <div className="logo-small" onClick={() => router.push('/')}>
-            <span>SEQOA</span>
+            <span>Seqoa</span>
           </div>
           <div className="search-box-wrapper">
             <SearchBox initialValue={query} onSearch={handleNewSearch} variant="small" />

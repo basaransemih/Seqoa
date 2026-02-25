@@ -17,7 +17,7 @@ export default function LandingPage() {
       <div className="landing-content container">
         <header className="landing-header fade-in">
           <div className="logo">
-            <span className="logo-text">SEQOA</span>
+            <span className="logo-text">Seqoa</span>
           </div>
           <h1 className="landing-title">Searching redefined by intelligence.</h1>
           <p className="landing-subtitle">
