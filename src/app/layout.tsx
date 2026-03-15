@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import StatusIndicator from "@/components/StatusIndicator";
+import { SettingsProvider } from "@/context/SettingsContext";
 
 export const metadata: Metadata = {
-  title: "Seqoa | Premium Meta-Search Engine",
-  description: "Next-generation meta-aggregation search engine with privacy and speed.",
+  title: "Seqoa | Privacy-First Meta-Search",
+  description: "AI-powered meta-aggregation search engine. Privacy-focused, fast, and intelligent.",
 };
 
 export const viewport: Viewport = {
@@ -21,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
-        <StatusIndicator />
+        <SettingsProvider>
+          <main>{children}</main>
+          <StatusIndicator />
+        </SettingsProvider>
       </body>
     </html>
   );

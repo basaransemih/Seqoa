@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import SearchBox from '@/components/SearchBox';
-import { Shield, Zap, Search } from 'lucide-react';
+import { Settings, Globe } from 'lucide-react';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -14,36 +14,46 @@ export default function LandingPage() {
 
   return (
     <div className="landing-wrapper">
-      <div className="landing-content container">
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+
+      {/* Top-right settings link */}
+      <button className="settings-link" onClick={() => router.push('/settings')} aria-label="Settings">
+        <Settings size={16} />
+      </button>
+
+      <div className="landing-content">
         <header className="landing-header fade-in">
-          <div className="logo">
-            <span className="logo-text">Seqoa</span>
+          <div className="logo-badge">
+            <Globe size={13} className="logo-globe" />
+            <span>SEQOA</span>
           </div>
-          <h1 className="landing-title">Searching redefined by intelligence.</h1>
+          <h1 className="landing-title">
+            Search smarter.<br />
+            <span className="gradient-text">Think deeper.</span>
+          </h1>
           <p className="landing-subtitle">
-            Privacy-focused, high-performance meta-aggregation engine combining results from 15+ sources.
+            AI-powered meta-search across 15+ engines. Private by design.
           </p>
         </header>
 
-        <section className="search-section fade-in" style={{ animationDelay: '0.1s' }}>
+        <section className="search-section fade-in" style={{ animationDelay: '0.12s' }}>
           <SearchBox onSearch={handleSearch} variant="large" />
+          <div className="quick-searches">
+            {['AI news', 'TypeScript', 'Climate change', 'Space exploration'].map((q) => (
+              <button key={q} className="quick-chip" onClick={() => handleSearch(q)}>
+                {q}
+              </button>
+            ))}
+          </div>
         </section>
 
-        <footer className="landing-footer fade-in" style={{ animationDelay: '0.2s' }}>
-          <div className="features">
-            <div className="feature">
-              <Shield size={20} />
-              <span>Privately Aggregated</span>
-            </div>
-            <div className="feature">
-              <Zap size={20} />
-              <span>Real-time Results</span>
-            </div>
-            <div className="feature">
-              <Search size={20} />
-              <span>15+ Engines</span>
-            </div>
-          </div>
+        <footer className="landing-footer fade-in" style={{ animationDelay: '0.24s' }}>
+          <span>Private</span>
+          <span className="dot">·</span>
+          <span>15+ Sources</span>
+          <span className="dot">·</span>
+          <span>DeepSeek AI</span>
         </footer>
       </div>
 
@@ -53,79 +63,166 @@ export default function LandingPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+          background: var(--bg);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+          pointer-events: none;
+        }
+
+        .orb-1 {
+          width: 550px;
+          height: 550px;
+          background: radial-gradient(circle, rgba(124, 58, 237, 0.18) 0%, transparent 70%);
+          top: -80px;
+          right: -100px;
+          animation: orbPulse 9s ease-in-out infinite;
+        }
+
+        .orb-2 {
+          width: 450px;
+          height: 450px;
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+          bottom: -80px;
+          left: -80px;
+          animation: orbPulse 11s ease-in-out infinite reverse;
+        }
+
+        .settings-link {
+          position: fixed;
+          top: 1.25rem;
+          right: 1.25rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 38px;
+          height: 38px;
+          border-radius: var(--radius-md);
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          color: var(--fg-muted);
+          transition: var(--transition);
+          z-index: 50;
+        }
+
+        .settings-link:hover {
+          color: var(--fg);
+          background: var(--hover-bg);
+          border-color: rgba(124, 58, 237, 0.3);
         }
 
         .landing-content {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 3rem;
-          padding-bottom: 5rem;
+          gap: 2.5rem;
+          padding: 2rem 1.5rem 5rem;
+          width: 100%;
+          max-width: 680px;
+          position: relative;
+          z-index: 1;
         }
 
         .landing-header {
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1.25rem;
         }
 
-        .logo {
-          margin-bottom: 1.5rem;
-        }
-
-        .logo-text {
-          font-size: 0.875rem;
+        .logo-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          background: rgba(124, 58, 237, 0.08);
+          border: 1px solid rgba(124, 58, 237, 0.25);
+          border-radius: 99px;
+          padding: 0.35rem 0.9rem;
+          font-size: 0.65rem;
           font-weight: 800;
-          letter-spacing: 0.5em;
-          color: var(--fg);
-          border: 1px solid var(--fg);
-          padding: 0.5rem 1rem 0.5rem 1.5rem;
-          display: inline-block;
+          letter-spacing: 0.25em;
+          color: #c084fc;
+        }
+
+        .logo-globe {
+          animation: float 4s ease-in-out infinite;
         }
 
         .landing-title {
-          font-size: 3.5rem;
+          font-size: clamp(2.4rem, 6vw, 4rem);
           font-weight: 800;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.03em;
           line-height: 1.1;
-          margin-bottom: 1.5rem;
           color: var(--fg);
         }
 
         .landing-subtitle {
-          font-size: 1.125rem;
+          font-size: 1rem;
           color: var(--fg-muted);
-          max-width: 500px;
+          max-width: 400px;
           margin: 0 auto;
+          line-height: 1.65;
         }
 
+        /* Search */
         .search-section {
           width: 100%;
-          max-width: 600px;
-        }
-
-        .features {
           display: flex;
-          gap: 3rem;
-          color: var(--fg-muted);
+          flex-direction: column;
+          gap: 0.875rem;
         }
 
-        .feature {
+        .quick-searches {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          justify-content: center;
+        }
+
+        .quick-chip {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: var(--fg-muted);
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          border-radius: 99px;
+          padding: 0.3rem 0.875rem;
+          transition: var(--transition);
+          cursor: pointer;
+        }
+
+        .quick-chip:hover {
+          color: var(--fg);
+          border-color: rgba(124, 58, 237, 0.35);
+          background: rgba(124, 58, 237, 0.06);
+        }
+
+        /* Footer */
+        .landing-footer {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          font-size: 0.875rem;
-          font-weight: 500;
+          font-size: 0.75rem;
+          color: var(--fg-muted);
         }
 
-        @media (max-width: 768px) {
+        .dot {
+          opacity: 0.4;
+        }
+
+        @media (max-width: 480px) {
           .landing-title {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
           }
-          
-          .features {
-            flex-direction: column;
-            gap: 1.5rem;
-            align-items: center;
+
+          .quick-searches {
+            display: none;
           }
         }
       `}</style>
