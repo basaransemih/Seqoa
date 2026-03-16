@@ -32,7 +32,7 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: 'mistralai/mistral-7b-instruct:free',
+                model: 'google/gemma-3-12b-it:free',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: userMessage },
