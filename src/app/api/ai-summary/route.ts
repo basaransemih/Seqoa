@@ -4,6 +4,11 @@ export async function POST(req: NextRequest) {
     try {
         const { query, results } = await req.json();
 
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({ error: 'Gemini API key not configured. Please add GEMINI_API_KEY to .env.local' }, { status: 503 });
+        }
+
         // Build a compact context from results (max 5 results, ~150 chars each)
         const contextSnippets = (results || [])
             .slice(0, 5)
@@ -18,24 +23,30 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
 
         const userMessage = `Search query: "${query}"\n\nTop results:\n${contextSnippets}`;
 
-        const response = await fetch('https://tekir.co/api/karakulak/mistral', {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userMessage },
+                contents: [
+                    {
+                        role: 'user',
+                        parts: [
+                            { text: systemPrompt + "\n\n" + userMessage }
+                        ]
+                    }
                 ],
-                max_tokens: 120,
-                temperature: 0.4,
+                generationConfig: {
+                    maxOutputTokens: 120,
+                    temperature: 0.4,
+                },
             }),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Tekir API error:', errorText);
+            console.error('Gemini API error:', errorText);
 
             try {
                 const errorJson = JSON.parse(errorText);
@@ -47,7 +58,7 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
         }
 
         const data = await response.json();
-        const summary = data.choices?.[0]?.message?.content?.trim() || null;
+        const summary = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
 
         return NextResponse.json({ summary });
     } catch (err) {

@@ -20,7 +20,7 @@ export default function SearchBox({ initialValue = '', onSearch, variant = 'larg
         debounce(async (q: string) => {
             if (q.length < 2) { setSuggestions([]); return; }
             try {
-                const res = await fetch(`https://tekir.co/api/recommend?q=${encodeURIComponent(q)}`);
+                const res = await fetch(`https://seqoa-proxy.vercel.app/api/auto-complete?q=${encodeURIComponent(q)}`);
                 if (res.ok) {
                     const data = await res.json();
                     setSuggestions(Array.isArray(data) ? data : []);
