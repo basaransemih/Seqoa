@@ -4,9 +4,9 @@ export async function POST(req: NextRequest) {
     try {
         const { query, results } = await req.json();
 
-        const apiKey = process.env.OPENROUTER_API_KEY;
+        const apiKey = process.env.HUGGINGFACE_API_KEY;
         if (!apiKey) {
-            return NextResponse.json({ error: 'OpenRouter API key not configured. Please add OPENROUTER_API_KEY to .env.local' }, { status: 503 });
+            return NextResponse.json({ error: 'Hugging Face API key not configured. Please add HUGGINGFACE_API_KEY to .env.local' }, { status: 503 });
         }
 
         // Build a compact context from results (max 5 results, ~150 chars each)
@@ -23,32 +23,32 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
 
         const userMessage = `Search query: "${query}"\n\nTop results:\n${contextSnippets}`;
 
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        // Hugging Face strictly follows this format for open-source models
+        const prompt = `<|system|>\n${systemPrompt}</s>\n<|user|>\n${userMessage}</s>\n<|assistant|>\n`;
+
+        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': 'https://seqoa.vercel.app', // Required by OpenRouter
-                'X-Title': 'Seqoa Search', // Optional but recommended
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: 'google/gemma-3-12b-it:free',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userMessage },
-                ],
-                max_tokens: 120,
-                temperature: 0.4,
+                inputs: prompt,
+                parameters: {
+                    max_new_tokens: 120,
+                    temperature: 0.4,
+                    return_full_text: false,
+                },
             }),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('OpenRouter API error:', errorText);
+            console.error('Hugging Face API error:', errorText);
             
             try {
                 const errorJson = JSON.parse(errorText);
-                const message = errorJson.error?.message || 'AI service unavailable.';
+                const message = errorJson.error || 'AI service unavailable.';
                 return NextResponse.json({ error: message }, { status: response.status });
             } catch {
                 return NextResponse.json({ error: 'AI service unavailable.' }, { status: 502 });
@@ -56,7 +56,14 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
         }
 
         const data = await response.json();
-        const summary = data.choices?.[0]?.message?.content?.trim() || null;
+        // Hugging Face returns an array with generated_text
+        let summary = data[0]?.generated_text?.trim() || null;
+        
+        // Clean up any weird prefixes sometimes generated
+        if (summary) {
+             summary = summary.replace(/^Summary:/i, '').trim();
+             summary = summary.replace(/^Here is a one-sentence summary:/i, '').trim();
+        }
 
         return NextResponse.json({ summary });
     } catch (err) {
