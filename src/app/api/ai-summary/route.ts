@@ -4,12 +4,6 @@ export async function POST(req: NextRequest) {
     try {
         const { query, results } = await req.json();
 
-        // Check for OpenAI API Key
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) {
-            return NextResponse.json({ error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to .env.local' }, { status: 503 });
-        }
-
         // Build a compact context from results (max 5 results, ~150 chars each)
         const contextSnippets = (results || [])
             .slice(0, 5)
@@ -24,14 +18,12 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
 
         const userMessage = `Search query: "${query}"\n\nTop results:\n${contextSnippets}`;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('https://tekir.co/api/karakulak/mistral', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: 'gpt-4o-mini',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: userMessage },
@@ -43,7 +35,7 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('OpenAI API error:', errorText);
+            console.error('Tekir API error:', errorText);
 
             try {
                 const errorJson = JSON.parse(errorText);
