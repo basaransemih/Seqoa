@@ -338,9 +338,47 @@ function SearchResultsContent() {
           }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .header-container {
             gap: 0.75rem;
+            padding: 0 1rem;
+          }
+          
+          .search-box-wrapper {
+            max-width: 100%;
+            flex: 1;
+          }
+          
+          .results-container {
+            padding: 1.5rem 1rem 3rem;
+          }
+          
+          .results-layout.no-sidebar {
+            max-width: 100%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .header-container {
+            gap: 0.5rem;
+          }
+          
+          .logo-small {
+            font-size: 0.6rem;
+            padding: 0.3rem 0.6rem;
+          }
+          
+          .header-settings {
+            width: 32px;
+            height: 32px;
+          }
+          
+          .results-container {
+            padding: 1rem 0.75rem 2rem;
+          }
+          
+          .result-cards-list {
+            gap: 0.5rem;
           }
         }
       `}</style>

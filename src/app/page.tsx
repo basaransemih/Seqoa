@@ -216,13 +216,58 @@ export default function LandingPage() {
           opacity: 0.4;
         }
 
+        @media (max-width: 768px) {
+          .landing-title {
+            font-size: 2.4rem;
+          }
+          
+          .landing-content {
+            padding: 1.5rem 1rem 3rem;
+            gap: 2rem;
+          }
+          
+          .orb-1 {
+            width: 400px;
+            height: 400px;
+            top: -60px;
+            right: -80px;
+          }
+          
+          .orb-2 {
+            width: 350px;
+            height: 350px;
+            bottom: -60px;
+            left: -60px;
+          }
+        }
+
         @media (max-width: 480px) {
           .landing-title {
-            font-size: 2.2rem;
+            font-size: 2rem;
           }
-
+          
+          .landing-subtitle {
+            font-size: 0.9rem;
+          }
+          
           .quick-searches {
             display: none;
+          }
+          
+          .landing-content {
+            padding: 1rem 0.75rem 2rem;
+            gap: 1.5rem;
+          }
+          
+          .orb-1, .orb-2 {
+            filter: blur(60px);
+          }
+          
+          .settings-link {
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
           }
         }
       `}</style>

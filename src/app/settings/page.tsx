@@ -177,6 +177,8 @@ export default function SettingsPage() {
                                 <option value={10}>10</option>
                                 <option value={20}>20</option>
                                 <option value={30}>30</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
                             </select>
                         </div>
                     </div>
@@ -190,7 +192,7 @@ export default function SettingsPage() {
                         <Globe size={20} className="about-icon" />
                         <div>
                             <div className="about-name">Seqoa</div>
-                            <div className="about-tagline">Privacy-first meta-search · powered by DeepSeek AI</div>
+                            <div className="about-tagline">Privacy-first meta-search · powered by Vercel and basaransemih</div>
                         </div>
                     </div>
                 </section>
@@ -510,12 +512,43 @@ export default function SettingsPage() {
           margin-top: 0.1rem;
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .theme-grid {
             grid-template-columns: 1fr;
           }
           .header-inner {
             gap: 1rem;
+          }
+          .settings-main {
+            padding: 2rem 1rem 3rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .theme-grid {
+            gap: 0.5rem;
+          }
+          .header-inner {
+            gap: 0.75rem;
+          }
+          .settings-main {
+            padding: 1.5rem 0.75rem 2rem;
+            gap: 1.5rem;
+          }
+          .feature-row {
+            padding: 0.875rem 1rem;
+            gap: 1rem;
+          }
+          .feature-row-info {
+            gap: 0.75rem;
+          }
+          .theme-card {
+            padding: 0.875rem;
+            gap: 0.625rem;
+          }
+          .results-select {
+            font-size: 0.8rem;
+            padding: 0.35rem 0.6rem;
           }
         }
       `}</style>

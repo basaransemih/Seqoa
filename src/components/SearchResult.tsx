@@ -180,12 +180,44 @@ export default function SearchResult({ result, index = 0 }: SearchResultProps) {
           overflow: hidden;
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .result-title {
             font-size: 1rem;
           }
           .result-card {
             padding: 1rem 1.25rem;
+          }
+          .result-source-row {
+            margin-bottom: 0.4rem;
+          }
+          .result-description {
+            font-size: 0.85rem;
+            -webkit-line-clamp: 3;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .result-card {
+            padding: 0.875rem 1rem;
+          }
+          .result-title {
+            font-size: 0.95rem;
+            line-height: 1.3;
+          }
+          .result-domain {
+            font-size: 0.75rem;
+          }
+          .result-url {
+            font-size: 0.7rem;
+            margin-bottom: 0.4rem;
+          }
+          .result-description {
+            font-size: 0.8rem;
+            -webkit-line-clamp: 2;
+          }
+          .result-source-tag {
+            font-size: 0.6rem;
+            padding: 1px 6px;
           }
         }
       `}</style>
