@@ -4,9 +4,10 @@ export async function POST(req: NextRequest) {
     try {
         const { query, results } = await req.json();
 
-        const apiKey = process.env.HUGGINGFACE_API_KEY;
+        // Check for OpenAI API Key
+        const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
-            return NextResponse.json({ error: 'Hugging Face API key not configured. Please add HUGGINGFACE_API_KEY to .env.local' }, { status: 503 });
+            return NextResponse.json({ error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to .env.local' }, { status: 503 });
         }
 
         // Build a compact context from results (max 5 results, ~150 chars each)
@@ -23,32 +24,30 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
 
         const userMessage = `Search query: "${query}"\n\nTop results:\n${contextSnippets}`;
 
-        // Hugging Face strictly follows this format for open-source models
-        const prompt = `<|system|>\n${systemPrompt}</s>\n<|user|>\n${userMessage}</s>\n<|assistant|>\n`;
-
-        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                inputs: prompt,
-                parameters: {
-                    max_new_tokens: 120,
-                    temperature: 0.4,
-                    return_full_text: false,
-                },
+                model: 'gpt-4o-mini',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userMessage },
+                ],
+                max_tokens: 120,
+                temperature: 0.4,
             }),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Hugging Face API error:', errorText);
-            
+            console.error('OpenAI API error:', errorText);
+
             try {
                 const errorJson = JSON.parse(errorText);
-                const message = errorJson.error || 'AI service unavailable.';
+                const message = errorJson.error?.message || 'AI service unavailable.';
                 return NextResponse.json({ error: message }, { status: response.status });
             } catch {
                 return NextResponse.json({ error: 'AI service unavailable.' }, { status: 502 });
@@ -56,14 +55,7 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
         }
 
         const data = await response.json();
-        // Hugging Face returns an array with generated_text
-        let summary = data[0]?.generated_text?.trim() || null;
-        
-        // Clean up any weird prefixes sometimes generated
-        if (summary) {
-             summary = summary.replace(/^Summary:/i, '').trim();
-             summary = summary.replace(/^Here is a one-sentence summary:/i, '').trim();
-        }
+        const summary = data.choices?.[0]?.message?.content?.trim() || null;
 
         return NextResponse.json({ summary });
     } catch (err) {

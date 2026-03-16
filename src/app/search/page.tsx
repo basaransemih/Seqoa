@@ -355,7 +355,7 @@ export default function SearchPage() {
         Loading…
       </div>
     }>
-      <SearchResultsContent />
+      <SearchResultsContent   />
     </Suspense>
   );
 }
