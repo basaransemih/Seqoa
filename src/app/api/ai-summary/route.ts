@@ -4,9 +4,9 @@ export async function POST(req: NextRequest) {
     try {
         const { query, results } = await req.json();
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) {
-            return NextResponse.json({ error: 'Gemini API key not configured. Please add GEMINI_API_KEY to .env.local' }, { status: 503 });
+            return NextResponse.json({ error: 'OpenRouter API key not configured. Please add OPENROUTER_API_KEY to .env.local' }, { status: 503 });
         }
 
         // Build a compact context from results (max 5 results, ~150 chars each)
@@ -23,30 +23,28 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
 
         const userMessage = `Search query: "${query}"\n\nTop results:\n${contextSnippets}`;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'HTTP-Referer': 'https://seqoa.vercel.app', // Required by OpenRouter
+                'X-Title': 'Seqoa Search', // Optional but recommended
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                contents: [
-                    {
-                        role: 'user',
-                        parts: [
-                            { text: systemPrompt + "\n\n" + userMessage }
-                        ]
-                    }
+                model: 'google/gemma-2-9b-it:free',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userMessage },
                 ],
-                generationConfig: {
-                    maxOutputTokens: 120,
-                    temperature: 0.4,
-                },
+                max_tokens: 120,
+                temperature: 0.4,
             }),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Gemini API error:', errorText);
+            console.error('OpenRouter API error:', errorText);
             
             try {
                 const errorJson = JSON.parse(errorText);
@@ -58,7 +56,7 @@ Be factual, neutral, and helpful. Write in plain English. Do not mention sources
         }
 
         const data = await response.json();
-        const summary = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+        const summary = data.choices?.[0]?.message?.content?.trim() || null;
 
         return NextResponse.json({ summary });
     } catch (err) {
